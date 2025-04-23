@@ -1,24 +1,30 @@
-
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
-import FranchiseListingPage from './pages/FranchiseListingPage';
-import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import FranchiseeDashboardPage from './pages/FranchiseeDashboardPage';
-import NotFound from './pages/NotFound';
+import FranchisorDashboardPage from './pages/FranchisorDashboardPage';
+import AdminPage from './pages/AdminPage';
+import FranchiseListingPage from './pages/FranchiseListingPage';
 import './styles/global.css';
 
-const App = () => {
+const App: React.FC = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/franchises" element={<FranchiseListingPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/franchisee-dashboard" element={<FranchiseeDashboardPage />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Layout><HomePage /></Layout>} />
+          <Route path="/login" element={<Layout><LoginPage /></Layout>} />
+          <Route path="/register" element={<Layout><RegisterPage /></Layout>} />
+          <Route path="/franchises" element={<Layout><FranchiseListingPage /></Layout>} />
+          <Route path="/franchisee-dashboard" element={<Layout><FranchiseeDashboardPage /></Layout>} />
+          <Route path="/franchisor-dashboard" element={<Layout><FranchisorDashboardPage /></Layout>} />
+          <Route path="/admin" element={<Layout><AdminPage /></Layout>} />
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 };

@@ -1,9 +1,8 @@
-
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const connectDB = require('./config/db');
-const errorHandler = require('./middleware/error');
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import connectDB from './config/db.js';
+import errorHandler from './middleware/error.js';
 
 // Load environment variables
 dotenv.config({ path: './config/config.env' });
@@ -12,10 +11,10 @@ dotenv.config({ path: './config/config.env' });
 connectDB();
 
 // Route files
-const auth = require('./routes/auth');
-const users = require('./routes/users');
-const franchises = require('./routes/franchises');
-const applications = require('./routes/applications');
+import auth from './routes/auth.js';
+import users from './routes/users.js';
+import franchises from './routes/franchises.js';
+import applications from './routes/applications.js';
 
 const app = express();
 

@@ -1,66 +1,45 @@
-
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const franchiseSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please add a franchise name'],
+    required: [true, 'Please add a name'],
     trim: true,
-    maxlength: [100, 'Name cannot be more than 100 characters']
+    maxlength: [50, 'Name cannot be more than 50 characters']
   },
   description: {
     type: String,
-    required: [true, 'Please add a description'],
-    maxlength: [2000, 'Description cannot be more than 2000 characters']
-  },
-  logo: {
-    type: String,
-    default: 'default-franchise-logo.jpg'
+    required: [true, 'Please add a description']
   },
   category: {
     type: String,
-    required: [true, 'Please add a category'],
-    enum: [
-      'Food & Beverage',
-      'Retail',
-      'Home Services',
-      'Health & Fitness',
-      'Education',
-      'Automotive',
-      'Business Services',
-      'Entertainment',
-      'Other'
-    ]
+    required: [true, 'Please add a category']
   },
-  location: {
+  investmentRange: {
+    min: {
+      type: Number,
+      required: [true, 'Please add minimum investment']
+    },
+    max: {
+      type: Number,
+      required: [true, 'Please add maximum investment']
+    }
+  },
+  locations: [String],
+  website: String,
+  contactEmail: {
     type: String,
-    required: [true, 'Please add a location'],
-    enum: [
-      'National',
-      'Northeast',
-      'Southeast',
-      'Midwest',
-      'Southwest',
-      'West',
-      'International'
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      'Please add a valid email'
     ]
   },
-  investmentMin: {
-    type: Number,
-    required: [true, 'Please add minimum investment amount']
+  contactPhone: {
+    type: String,
+    required: [true, 'Please add a contact phone number']
   },
-  investmentMax: {
-    type: Number,
-    required: [true, 'Please add maximum investment amount']
-  },
-  establishedYear: Number,
-  unitsCount: Number,
-  franchiseFee: Number,
-  ongoingRoyalty: String,
-  termYears: Number,
-  
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
+  user: {
+    type: mongoose.Schema.ObjectId,
     ref: 'User',
     required: true
   },
@@ -70,4 +49,5 @@ const franchiseSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Franchise', franchiseSchema);
+const Franchise = mongoose.model('Franchise', franchiseSchema);
+export default Franchise;

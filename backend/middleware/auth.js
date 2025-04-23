@@ -1,52 +1,43 @@
-
-const jwt = require('jsonwebtoken');
-const asyncHandler = require('./async');
-const ErrorResponse = require('../utils/errorResponse');
-const User = require('../models/User');
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
 // Protect routes
-exports.protect = asyncHandler(async (req, res, next) => {
+export const protect = async (req, res, next) => {
   let token;
 
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
-    // Set token from Bearer token in header
-    token = req.headers.authorization.split(' ')[1];
-  } 
-  // Set token from cookie if not in header
-  else if (req.cookies && req.cookies.token) {
-    token = req.cookies.token;
+    try {
+      // Get token from header
+      token = req.headers.authorization.split(' ')[1];
+
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Get user from the token
+      req.user = await User.findById(decoded.id).select('-password');
+
+      next();
+    } catch (error) {
+      console.error(error);
+      res.status(401).json({ message: 'Not authorized' });
+    }
   }
 
-  // Make sure token exists
   if (!token) {
-    return next(new ErrorResponse('Not authorized to access this route', 401));
+    res.status(401).json({ message: 'Not authorized, no token' });
   }
-
-  try {
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    req.user = await User.findById(decoded.id);
-
-    next();
-  } catch (err) {
-    return next(new ErrorResponse('Not authorized to access this route', 401));
-  }
-});
+};
 
 // Grant access to specific roles
-exports.authorize = (...roles) => {
+export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return next(
-        new ErrorResponse(
-          `User role ${req.user.role} is not authorized to access this route`,
-          403
-        )
-      );
+      return res.status(403).json({
+        message: `User role ${req.user.role} is not authorized to access this route`
+      });
     }
     next();
   };

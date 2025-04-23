@@ -1,12 +1,10 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Layout from '../components/Layout';
 import '../styles/HomePage.css';
 
 const HomePage: React.FC = () => {
   return (
-    <Layout>
+    <>
       <section className="hero">
         <div className="container hero-content">
           <div className="hero-text">
@@ -128,7 +126,7 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 };
 

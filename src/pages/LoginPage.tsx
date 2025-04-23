@@ -1,11 +1,13 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
+import { useAuth } from '../contexts/AuthContext';
+import { Button } from '../components/ui/button';
 import '../styles/LoginPage.css';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -53,32 +55,43 @@ const LoginPage: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // In a real app, this would be an API call
-      console.log('Login submission data:', formData);
-      
-      // Simulate API request
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock response with user role for demo
-      const mockResponse = {
-        token: 'mock_jwt_token_would_be_here',
-        user: {
-          id: '123',
-          firstName: 'John',
-          lastName: 'Doe',
-          email: formData.email,
-          role: 'franchisee', // or 'franchisor' or 'admin'
+      const response = await fetch('http://localhost:5000/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      };
-      
-      // Store token in localStorage (in a real app, you might use HTTP-only cookies)
-      localStorage.setItem('token', mockResponse.token);
-      localStorage.setItem('userRole', mockResponse.user.role);
-      
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // Get user data
+      const userResponse = await fetch('http://localhost:5000/api/v1/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${data.token}`,
+        },
+      });
+
+      const userData = await userResponse.json();
+
+      if (!userResponse.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+
+      // Store token and user data
+      login(data.token, userData.data);
+
       // Redirect based on role
-      if (mockResponse.user.role === 'admin') {
+      if (userData.data.role === 'admin') {
         navigate('/admin');
-      } else if (mockResponse.user.role === 'franchisor') {
+      } else if (userData.data.role === 'franchisor') {
         navigate('/franchisor-dashboard');
       } else {
         navigate('/franchisee-dashboard');
@@ -87,7 +100,7 @@ const LoginPage: React.FC = () => {
     } catch (err) {
       console.error('Login error:', err);
       setErrors({
-        form: 'Invalid email or password. Please try again.',
+        form: err instanceof Error ? err.message : 'Login failed. Please try again.',
       });
     } finally {
       setIsSubmitting(false);
@@ -95,85 +108,83 @@ const LoginPage: React.FC = () => {
   };
   
   return (
-    <Layout>
-      <div className="login-container">
-        <div className="login-content">
-          <div className="login-header">
-            <h1>Welcome Back</h1>
-            <p>Sign in to your FranchiseFlow account</p>
+    <div className="login-container">
+      <div className="login-content">
+        <div className="login-header">
+          <h1>Welcome Back</h1>
+          <p>Sign in to your FranchiseFlow account</p>
+        </div>
+        
+        {errors.form && (
+          <div className="error-banner">
+            {errors.form}
+          </div>
+        )}
+        
+        <form className="login-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className={errors.email ? 'form-control error' : 'form-control'}
+            />
+            {errors.email && <p className="error-text">{errors.email}</p>}
           </div>
           
-          {errors.form && (
-            <div className="error-banner">
-              {errors.form}
+          <div className="form-group">
+            <div className="password-header">
+              <label htmlFor="password">Password</label>
+              <Link to="/forgot-password" className="forgot-link">
+                Forgot Password?
+              </Link>
             </div>
-          )}
-          
-          <form className="login-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="email">Email Address</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className={errors.email ? 'form-control error' : 'form-control'}
-              />
-              {errors.email && <p className="error-text">{errors.email}</p>}
-            </div>
-            
-            <div className="form-group">
-              <div className="password-header">
-                <label htmlFor="password">Password</label>
-                <Link to="/forgot-password" className="forgot-link">
-                  Forgot Password?
-                </Link>
-              </div>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className={errors.password ? 'form-control error' : 'form-control'}
-              />
-              {errors.password && <p className="error-text">{errors.password}</p>}
-            </div>
-            
-            <div className="form-group remember-me">
-              <label className="checkbox-container">
-                <input
-                  type="checkbox"
-                  name="rememberMe"
-                  checked={formData.rememberMe}
-                  onChange={handleInputChange}
-                />
-                <span className="checkmark"></span>
-                Remember me
-              </label>
-            </div>
-            
-            <div className="form-submit">
-              <button 
-                type="submit" 
-                className="btn btn-primary btn-large"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Signing In...' : 'Sign In'}
-              </button>
-            </div>
-          </form>
-          
-          <div className="login-footer">
-            <p>
-              Don't have an account? 
-              <Link to="/register"> Create Account</Link>
-            </p>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              className={errors.password ? 'form-control error' : 'form-control'}
+            />
+            {errors.password && <p className="error-text">{errors.password}</p>}
           </div>
+          
+          <div className="form-group remember-me">
+            <label className="checkbox-container">
+              <input
+                type="checkbox"
+                name="rememberMe"
+                checked={formData.rememberMe}
+                onChange={handleInputChange}
+              />
+              <span className="checkmark"></span>
+              Remember me
+            </label>
+          </div>
+          
+          <div className="form-submit">
+            <Button 
+              type="submit" 
+              variant="signin"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Signing In...' : 'Sign In'}
+            </Button>
+          </div>
+        </form>
+        
+        <div className="login-footer">
+          <p>
+            Don't have an account? 
+            <Link to="/register"> Create Account</Link>
+          </p>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

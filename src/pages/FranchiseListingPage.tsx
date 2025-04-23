@@ -1,6 +1,4 @@
-
 import React, { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
 import FranchiseFilter from '../components/FranchiseFilter';
 import FranchiseCard from '../components/FranchiseCard';
 import '../styles/FranchiseListingPage.css';
@@ -146,75 +144,73 @@ const FranchiseListingPage: React.FC = () => {
   };
   
   return (
-    <Layout>
-      <div className="franchise-listing-page">
-        <div className="container">
-          <div className="listing-header">
-            <h1>Franchise Opportunities</h1>
-            <p>Discover and compare the best franchise opportunities that match your interests and budget</p>
-          </div>
+    <div className="franchise-listing-page">
+      <div className="container">
+        <div className="listing-header">
+          <h1>Franchise Opportunities</h1>
+          <p>Discover and compare the best franchise opportunities that match your interests and budget</p>
+        </div>
+        
+        <div className="listing-content">
+          <aside className="filter-sidebar">
+            <FranchiseFilter 
+              filters={filters} 
+              onFilterChange={handleFilterChange} 
+            />
+          </aside>
           
-          <div className="listing-content">
-            <aside className="filter-sidebar">
-              <FranchiseFilter 
-                filters={filters} 
-                onFilterChange={handleFilterChange} 
-              />
-            </aside>
-            
-            <div className="franchises-container">
-              {loading ? (
-                <div className="loading-state">
-                  <div className="loader"></div>
-                  <p>Loading franchise opportunities...</p>
-                </div>
-              ) : filteredFranchises.length > 0 ? (
-                <>
-                  <div className="results-header">
-                    <p className="results-count">
-                      <strong>{filteredFranchises.length}</strong> franchise opportunities found
-                    </p>
-                    <div className="sort-options">
-                      <label>Sort by:</label>
-                      <select>
-                        <option value="nameAsc">Name: A to Z</option>
-                        <option value="nameDesc">Name: Z to A</option>
-                        <option value="investmentLow">Investment: Low to High</option>
-                        <option value="investmentHigh">Investment: High to Low</option>
-                      </select>
-                    </div>
+          <div className="franchises-container">
+            {loading ? (
+              <div className="loading-state">
+                <div className="loader"></div>
+                <p>Loading franchise opportunities...</p>
+              </div>
+            ) : filteredFranchises.length > 0 ? (
+              <>
+                <div className="results-header">
+                  <p className="results-count">
+                    <strong>{filteredFranchises.length}</strong> franchise opportunities found
+                  </p>
+                  <div className="sort-options">
+                    <label>Sort by:</label>
+                    <select aria-label="Sort franchise listings">
+                      <option value="nameAsc">Name: A to Z</option>
+                      <option value="nameDesc">Name: Z to A</option>
+                      <option value="investmentLow">Investment: Low to High</option>
+                      <option value="investmentHigh">Investment: High to Low</option>
+                    </select>
                   </div>
-                  
-                  <div className="franchise-grid">
-                    {filteredFranchises.map(franchise => (
-                      <FranchiseCard key={franchise.id} franchise={franchise} />
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="no-results">
-                  <i className="fas fa-search"></i>
-                  <h3>No franchises found</h3>
-                  <p>Try adjusting your filters to find more opportunities</p>
-                  <button 
-                    className="btn btn-outline"
-                    onClick={() => setFilters({
-                      category: '',
-                      location: '',
-                      investmentMin: 0,
-                      investmentMax: 1000000,
-                      searchTerm: '',
-                    })}
-                  >
-                    Reset Filters
-                  </button>
                 </div>
-              )}
-            </div>
+                
+                <div className="franchise-grid">
+                  {filteredFranchises.map(franchise => (
+                    <FranchiseCard key={franchise.id} franchise={franchise} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="no-results">
+                <i className="fas fa-search"></i>
+                <h3>No franchises found</h3>
+                <p>Try adjusting your filters to find more opportunities</p>
+                <button 
+                  className="btn btn-outline"
+                  onClick={() => setFilters({
+                    category: '',
+                    location: '',
+                    investmentMin: 0,
+                    investmentMax: 1000000,
+                    searchTerm: '',
+                  })}
+                >
+                  Reset Filters
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

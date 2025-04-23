@@ -1,17 +1,18 @@
+import express from 'express';
+const router = express.Router();
 
-const express = require('express');
-const { 
+// Import controllers
+import { 
   getApplications,
   getApplication,
   createApplication,
   updateApplication,
   deleteApplication,
   updateApplicationStatus
-} = require('../controllers/applications');
+} from '../controllers/applications.js';
 
-const router = express.Router();
-
-const { protect, authorize } = require('../middleware/auth');
+// Import middleware
+import { protect, authorize } from '../middleware/auth.js';
 
 router
   .route('/')
@@ -28,4 +29,4 @@ router
   .route('/:id/status')
   .put(protect, authorize('franchisor', 'admin'), updateApplicationStatus);
 
-module.exports = router;
+export default router;

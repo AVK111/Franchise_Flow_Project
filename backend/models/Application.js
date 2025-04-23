@@ -1,51 +1,42 @@
-
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const applicationSchema = new mongoose.Schema({
-  franchisee: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+  franchise: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Franchise',
     required: true
   },
-  franchise: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Franchise',
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
     required: true
   },
   status: {
     type: String,
-    enum: ['pending', 'reviewed', 'approved', 'rejected'],
+    enum: ['pending', 'reviewing', 'approved', 'rejected'],
     default: 'pending'
   },
-  notes: {
+  investmentAmount: {
+    type: Number,
+    required: [true, 'Please add investment amount']
+  },
+  preferredLocation: {
     type: String,
-    maxlength: [1000, 'Notes cannot be more than 1000 characters']
+    required: [true, 'Please add preferred location']
   },
-  backgroundInfo: {
-    businessExperience: String,
-    financialCapacity: String,
-    desiredLocation: String,
-    timeframe: String
+  experience: {
+    type: String,
+    required: [true, 'Please add your experience']
   },
-  reviewedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+  message: {
+    type: String,
+    required: [true, 'Please add a message']
   },
-  reviewedAt: Date,
   createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
     type: Date,
     default: Date.now
   }
 });
 
-// Update the updatedAt field on save
-applicationSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
-module.exports = mongoose.model('Application', applicationSchema);
+const Application = mongoose.model('Application', applicationSchema);
+export default Application;

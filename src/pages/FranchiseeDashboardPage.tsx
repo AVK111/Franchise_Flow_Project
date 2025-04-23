@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import '../styles/FranchiseeDashboard.css';
+import { Button } from "@/components/ui/button";
 
 // Type definitions
 interface Application {
@@ -244,9 +244,9 @@ const FranchiseeDashboardPage: React.FC = () => {
                           </div>
                         </div>
                         <div className="application-actions">
-                          <button className="btn btn-outline">View Details</button>
+                          <Button variant="outline">View Details</Button>
                           {application.status === 'approved' && (
-                            <button className="btn btn-primary">Next Steps</button>
+                            <Button variant="default">Next Steps</Button>
                           )}
                         </div>
                       </div>

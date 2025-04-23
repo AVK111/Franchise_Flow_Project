@@ -1,27 +1,25 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { Button } from './ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import '../styles/Header.css';
 
 const Header: React.FC = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
-  const navigate = useNavigate();
-  
-  // In a real app, this would come from authentication context/state
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState('');
+  const { user, isAuthenticated, logout } = useAuth();
   
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen);
   };
   
   const handleLogout = () => {
-    // Clear token from localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('userRole');
-    setIsLoggedIn(false);
-    setUserRole('');
-    navigate('/login');
+    logout();
+  };
+
+  const getUserInitials = () => {
+    if (!user) return '';
+    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
   };
   
   return (
@@ -33,53 +31,91 @@ const Header: React.FC = () => {
           </Link>
         </div>
         
-        <button className="mobile-menu-button" onClick={toggleNav}>
+        <button 
+          className={`mobile-menu-button ${isNavOpen ? 'open' : ''}`} 
+          onClick={toggleNav}
+          aria-label="Toggle navigation menu"
+        >
           <span className="line"></span>
           <span className="line"></span>
           <span className="line"></span>
         </button>
         
-        <nav className={`main-nav ${isNavOpen ? 'open' : ''}`}>
-          <ul>
-            <li><Link to="/" onClick={() => setIsNavOpen(false)}>Home</Link></li>
-            <li><Link to="/franchises" onClick={() => setIsNavOpen(false)}>Franchises</Link></li>
+        <nav className={`nav ${isNavOpen ? 'open' : ''}`}>
+          <ul className="nav-links">
+            <li>
+              <Link to="/" className="nav-link" onClick={() => setIsNavOpen(false)}>
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/franchises" className="nav-link" onClick={() => setIsNavOpen(false)}>
+                Franchises
+              </Link>
+            </li>
             
-            {!isLoggedIn && (
+            {!isAuthenticated ? (
               <>
-                <li><Link to="/login" onClick={() => setIsNavOpen(false)}>Login</Link></li>
+                <li>
+                  <Link to="/login" className="nav-link" onClick={() => setIsNavOpen(false)}>
+                    Login
+                  </Link>
+                </li>
                 <li>
                   <Link 
                     to="/register" 
                     onClick={() => setIsNavOpen(false)}
-                    className="btn btn-primary nav-btn"
                   >
-                    Register
+                    <Button variant="default" size="sm">
+                      Register
+                    </Button>
                   </Link>
                 </li>
               </>
-            )}
-            
-            {isLoggedIn && userRole === 'franchisee' && (
-              <li><Link to="/franchisee-dashboard" onClick={() => setIsNavOpen(false)}>My Dashboard</Link></li>
-            )}
-            
-            {isLoggedIn && userRole === 'franchisor' && (
-              <li><Link to="/franchisor-dashboard" onClick={() => setIsNavOpen(false)}>Franchisor Dashboard</Link></li>
-            )}
-            
-            {isLoggedIn && userRole === 'admin' && (
-              <li><Link to="/admin" onClick={() => setIsNavOpen(false)}>Admin Panel</Link></li>
-            )}
-            
-            {isLoggedIn && (
-              <li>
-                <button 
-                  onClick={handleLogout} 
-                  className="btn btn-outline nav-btn"
-                >
-                  Logout
-                </button>
-              </li>
+            ) : (
+              <>
+                {user?.role === 'franchisee' && (
+                  <li>
+                    <Link to="/franchisee-dashboard" className="nav-link" onClick={() => setIsNavOpen(false)}>
+                      My Dashboard
+                    </Link>
+                  </li>
+                )}
+                
+                {user?.role === 'franchisor' && (
+                  <li>
+                    <Link to="/franchisor-dashboard" className="nav-link" onClick={() => setIsNavOpen(false)}>
+                      Franchisor Dashboard
+                    </Link>
+                  </li>
+                )}
+                
+                {user?.role === 'admin' && (
+                  <li>
+                    <Link to="/admin" className="nav-link" onClick={() => setIsNavOpen(false)}>
+                      Admin Panel
+                    </Link>
+                  </li>
+                )}
+                
+                <li className="user-menu">
+                  <div className="user-profile">
+                    <Avatar>
+                      <AvatarImage src={`https://ui-avatars.com/api/?name=${getUserInitials()}&background=random`} />
+                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                    </Avatar>
+                    <span className="user-name">{user?.firstName} {user?.lastName}</span>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleLogout}
+                    className="logout-btn"
+                  >
+                    Logout
+                  </Button>
+                </li>
+              </>
             )}
           </ul>
         </nav>

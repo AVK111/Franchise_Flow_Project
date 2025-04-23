@@ -1,201 +1,210 @@
+import User from '../models/User.js';
+import crypto from 'crypto';
 
-const crypto = require('crypto');
-const ErrorResponse = require('../utils/errorResponse');
-const asyncHandler = require('../middleware/async');
-const User = require('../models/User');
+// @desc    Register user
+// @route   POST /api/v1/auth/register
+// @access  Public
+export const register = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password, phone, role } = req.body;
 
-// @desc      Register user
-// @route     POST /api/v1/auth/register
-// @access    Public
-exports.register = asyncHandler(async (req, res, next) => {
-  const { firstName, lastName, email, password, phone, role } = req.body;
+    // Create user
+    const user = await User.create({
+      firstName,
+      lastName,
+      email,
+      password,
+      phone,
+      role
+    });
 
-  // Create user
-  const user = await User.create({
-    firstName,
-    lastName,
-    email,
-    password,
-    phone,
-    role
-  });
-
-  sendTokenResponse(user, 200, res);
-});
-
-// @desc      Login user
-// @route     POST /api/v1/auth/login
-// @access    Public
-exports.login = asyncHandler(async (req, res, next) => {
-  const { email, password } = req.body;
-
-  // Validate email & password
-  if (!email || !password) {
-    return next(new ErrorResponse('Please provide an email and password', 400));
+    sendTokenResponse(user, 201, res);
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
   }
+};
 
-  // Check for user
-  const user = await User.findOne({ email }).select('+password');
+// @desc    Login user
+// @route   POST /api/v1/auth/login
+// @access  Public
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-  if (!user) {
-    return next(new ErrorResponse('Invalid credentials', 401));
+    // Validate email & password
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Please provide an email and password' });
+    }
+
+    // Check for user
+    const user = await User.findOne({ email }).select('+password');
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Check if password matches
+    const isMatch = await user.matchPassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
   }
+};
 
-  // Check if password matches
-  const isMatch = await user.matchPassword(password);
+// @desc    Log user out / clear cookie
+// @route   GET /api/v1/auth/logout
+// @access  Private
+export const logout = (req, res) => {
+  res.status(200).json({ success: true, data: {} });
+};
 
-  if (!isMatch) {
-    return next(new ErrorResponse('Invalid credentials', 401));
+// @desc    Get current logged in user
+// @route   GET /api/v1/auth/me
+// @access  Private
+export const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
   }
+};
 
-  sendTokenResponse(user, 200, res);
-});
+// @desc    Update user details
+// @route   PUT /api/v1/auth/updatedetails
+// @access  Private
+export const updateDetails = async (req, res) => {
+  try {
+    const fieldsToUpdate = {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      phone: req.body.phone
+    };
+    
+    // Update investment preferences if provided
+    if (req.body.investmentPreferences) {
+      fieldsToUpdate.investmentPreferences = req.body.investmentPreferences;
+    }
 
-// @desc      Log user out / clear cookie
-// @route     GET /api/v1/auth/logout
-// @access    Private
-exports.logout = asyncHandler(async (req, res, next) => {
-  res.cookie('token', 'none', {
-    expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true
-  });
+    const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+      new: true,
+      runValidators: true
+    });
 
-  res.status(200).json({
-    success: true,
-    data: {}
-  });
-});
-
-// @desc      Get current logged in user
-// @route     GET /api/v1/auth/me
-// @access    Private
-exports.getMe = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
-
-  res.status(200).json({
-    success: true,
-    data: user
-  });
-});
-
-// @desc      Update user details
-// @route     PUT /api/v1/auth/updatedetails
-// @access    Private
-exports.updateDetails = asyncHandler(async (req, res, next) => {
-  const fieldsToUpdate = {
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    phone: req.body.phone
-  };
-  
-  // Update investment preferences if provided
-  if (req.body.investmentPreferences) {
-    fieldsToUpdate.investmentPreferences = req.body.investmentPreferences;
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
   }
+};
 
-  const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
-    new: true,
-    runValidators: true
-  });
+// @desc    Update password
+// @route   PUT /api/v1/auth/updatepassword
+// @access  Private
+export const updatePassword = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('+password');
 
-  res.status(200).json({
-    success: true,
-    data: user
-  });
-});
+    // Check current password
+    if (!(await user.matchPassword(req.body.currentPassword))) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
 
-// @desc      Update password
-// @route     PUT /api/v1/auth/updatepassword
-// @access    Private
-exports.updatePassword = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select('+password');
+    user.password = req.body.newPassword;
+    await user.save();
 
-  // Check current password
-  if (!(await user.matchPassword(req.body.currentPassword))) {
-    return next(new ErrorResponse('Password is incorrect', 401));
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
   }
+};
 
-  user.password = req.body.newPassword;
-  await user.save();
+// @desc    Forgot password
+// @route   POST /api/v1/auth/forgotpassword
+// @access  Public
+export const forgotPassword = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
 
-  sendTokenResponse(user, 200, res);
-});
+    if (!user) {
+      return res.status(404).json({ message: 'There is no user with that email' });
+    }
 
-// @desc      Forgot password
-// @route     POST /api/v1/auth/forgotpassword
-// @access    Public
-exports.forgotPassword = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
+    // Get reset token
+    const resetToken = crypto.randomBytes(20).toString('hex');
 
-  if (!user) {
-    return next(new ErrorResponse('There is no user with that email', 404));
+    // Hash token and set to resetPasswordToken field
+    user.resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    // Set expire
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      data: 'Email sent',
+      resetToken // In production you wouldn't send this back
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
   }
+};
 
-  // In a real app, you would send a password reset email here
-  // This is a simplified example
-  const resetToken = crypto
-    .randomBytes(20)
-    .toString('hex');
+// @desc    Reset password
+// @route   PUT /api/v1/auth/resetpassword/:resettoken
+// @access  Public
+export const resetPassword = async (req, res) => {
+  try {
+    // Get hashed token
+    const resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(req.params.resettoken)
+      .digest('hex');
 
-  // Hash token and set to resetPasswordToken field
-  user.resetPasswordToken = crypto
-    .createHash('sha256')
-    .update(resetToken)
-    .digest('hex');
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() }
+    });
 
-  // Set expire
-  user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid token' });
+    }
 
-  await user.save({ validateBeforeSave: false });
+    // Set new password
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
 
-  res.status(200).json({
-    success: true,
-    data: 'Email sent',
-    resetToken // In production you wouldn't send this back, but it's useful for testing
-  });
-});
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
 
-// @desc      Reset password
-// @route     PUT /api/v1/auth/resetpassword/:resettoken
-// @access    Public
-exports.resetPassword = asyncHandler(async (req, res, next) => {
-  // In a real app, you would implement reset password functionality here
-  // This is a placeholder implementation
-  res.status(200).json({
-    success: true,
-    data: 'Password reset functionality would be implemented here'
-  });
-});
-
-// Helper function to get token from model, create cookie and send response
+// Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
   // Create token
   const token = user.getSignedJwtToken();
 
-  const options = {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true
-  };
-
-  if (process.env.NODE_ENV === 'production') {
-    options.secure = true;
-  }
-
-  res
-    .status(statusCode)
-    .cookie('token', token, options)
-    .json({
-      success: true,
-      token,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role
-      }
-    });
+  res.status(statusCode).json({
+    success: true,
+    token
+  });
 };
