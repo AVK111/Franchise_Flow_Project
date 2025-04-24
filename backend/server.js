@@ -4,10 +4,10 @@ import cors from 'cors';
 import connectDB from './config/db.js';
 import errorHandler from './middleware/error.js';
 
-// Load environment variables
+//environment variables
 dotenv.config({ path: './config/config.env' });
 
-// Connect to database
+//database
 connectDB();
 
 // Route files
@@ -18,13 +18,13 @@ import applications from './routes/applications.js';
 
 const app = express();
 
-// Body parser
+//Body parser
 app.use(express.json());
 
-// Enable CORS
+//CORS
 app.use(cors());
 
-// Mount routers
+//routers
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/users', users);
 app.use('/api/v1/franchises', franchises);
