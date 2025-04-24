@@ -85,7 +85,7 @@ const Header: React.FC = () => {
                 {user?.role === 'franchisor' && (
                   <li>
                     <Link to="/franchisor-dashboard" className="nav-link" onClick={() => setIsNavOpen(false)}>
-                      Franchisor Dashboard
+                      My Dashboard
                     </Link>
                   </li>
                 )}

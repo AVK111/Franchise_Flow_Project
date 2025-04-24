@@ -1,8 +1,6 @@
 import Application from '../models/Application.js';
 
-// @desc    Get all applications
-// @route   GET /api/v1/applications
-// @access  Private
+
 export const getApplications = async (req, res) => {
   try {
     let query;
