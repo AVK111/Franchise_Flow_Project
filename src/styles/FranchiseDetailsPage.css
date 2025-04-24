@@ -1,0 +1,210 @@
+.franchise-details-page {
+  padding: 2rem 0;
+}
+
+.breadcrumb {
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+.breadcrumb a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.franchise-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.franchise-logo {
+  width: 200px;
+  height: 120px;
+  margin-right: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.franchise-logo img {
+  max-width: 180px;
+  max-height: 100px;
+  object-fit: contain;
+}
+
+.franchise-title h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2.5rem;
+  color: #1e293b;
+}
+
+.franchise-meta {
+  display: flex;
+  gap: 1rem;
+}
+
+.franchise-meta span {
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.franchise-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.main-info section {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.main-info h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: #1e293b;
+}
+
+.quick-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.fact label {
+  display: block;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.fact span {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.investment-range {
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.investment-range h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  color: #475569;
+}
+
+.investment-range p {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.requirements ul,
+.support-list,
+.benefits-list {
+  list-style: none;
+  padding: 0;
+}
+
+.requirements li,
+.support-list li,
+.benefits-list li {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.support-list li::before,
+.benefits-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #2563eb;
+}
+
+.action-sidebar {
+  position: sticky;
+  top: 2rem;
+}
+
+.action-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.action-card h3 {
+  margin: 0 0 1rem 0;
+  color: #1e293b;
+}
+
+.action-card p {
+  margin-bottom: 1.5rem;
+  color: #64748b;
+}
+
+.action-card .btn {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.error-container {
+  text-align: center;
+  padding: 4rem 0;
+}
+
+@media (max-width: 768px) {
+  .franchise-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .franchise-logo {
+    margin: 0 auto 1.5rem;
+  }
+
+  .franchise-meta {
+    justify-content: center;
+  }
+
+  .franchise-content {
+    grid-template-columns: 1fr;
+  }
+
+  .action-sidebar {
+    position: static;
+  }
+} 

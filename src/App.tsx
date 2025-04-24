@@ -9,6 +9,7 @@ import FranchiseeDashboardPage from './pages/FranchiseeDashboardPage';
 import FranchisorDashboardPage from './pages/FranchisorDashboardPage';
 import AdminPage from './pages/AdminPage';
 import FranchiseListingPage from './pages/FranchiseListingPage';
+import FranchiseDetailsPage from './pages/FranchiseDetailsPage';
 import './styles/global.css';
 
 const App: React.FC = () => {
@@ -23,6 +24,7 @@ const App: React.FC = () => {
           <Route path="/franchisee-dashboard" element={<Layout><FranchiseeDashboardPage /></Layout>} />
           <Route path="/franchisor-dashboard" element={<Layout><FranchisorDashboardPage /></Layout>} />
           <Route path="/admin" element={<Layout><AdminPage /></Layout>} />
+          <Route path="/franchises/:id" element={<Layout><FranchiseDetailsPage /></Layout>} />
         </Routes>
       </AuthProvider>
     </Router>

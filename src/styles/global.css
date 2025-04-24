@@ -41,14 +41,14 @@ button, .btn {
   cursor: pointer;
   padding: 10px 20px;
   border-radius: 6px;
-  border: none;
+  border:solid black 1px;
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .btn-primary {
   background-color: var(--primary);
-  color: white;
+  color: rgb(10, 10, 10);
 }
 
 .btn-primary:hover {
