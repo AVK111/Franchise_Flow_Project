@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/FranchiseeDashboard.css';
 import { Button } from "@/components/ui/button";
+import { useAuth } from '../contexts/AuthContext';
 
 // Type definitions
 interface Application {
